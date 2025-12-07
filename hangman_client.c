@@ -167,10 +167,10 @@ int main(int argc, char *argv[])
             }
             printf("\n");
             
-            printf(">>>Incorrect Guesses:");
+            printf(">>>Incorrect Guesses: ");
             for (int i = 0; i < num_incorrect; i++) 
             {
-                printf(" %c", packet_buffer[3 + word_len + i]);
+                printf("%c", packet_buffer[3 + word_len + i]);
             }
             printf("\n>>>\n");
 
