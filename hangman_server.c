@@ -276,8 +276,8 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        int slot_index = -1;
         pthread_mutex_lock(&clients_mutex);
+        int slot_index = -1;
         for (int i = 0; i < MAX_CLIENTS; i++) 
         {
             if (game_sessions[i].is_active == 0)
