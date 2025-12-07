@@ -1,0 +1,8 @@
+dog
+cat
+bird
+fox
+game
+blue
+hangman
+computer
