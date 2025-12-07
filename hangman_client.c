@@ -19,6 +19,7 @@ char get_valid_guess() {
         printf(">>>Letter to guess: ");
         if (fgets(input, sizeof(input), stdin) == NULL) 
         {
+            printf("\n");
             return 0; 
         }
 
@@ -115,6 +116,10 @@ int main(int argc, char *argv[])
     printf(">>>Ready to start game? (y/n): ");
     if (fgets(ready_char, sizeof(ready_char), stdin) == NULL || tolower(ready_char[0]) != 'y') 
     {
+        if (fgets(ready_char, sizeof(ready_char), stdin) == NULL)
+        {
+            printf("\n");
+        }
         close(client_fd);
         exit(0);
     }
