@@ -163,12 +163,11 @@ int main(int argc, char *argv[])
             printf(">>>");
             for (int i = 0; i < word_len; i++) 
             {
-                if (packet_buffer[3 + i] == '\0')
+                printf("%c", packet_buffer[3 + i]);
+                if (i < word_len - 1) 
                 {
-                    printf("%c", packet_buffer[3 + i]);
-                    break;
+                    printf(" ");
                 }
-                printf("%c ", packet_buffer[3 + i]);
             }
             printf("\n");
             
