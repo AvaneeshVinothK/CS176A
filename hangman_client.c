@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
             {
                 if (packet_buffer[3 + i] == '\0')
                 {
-                    printf('\0');
+                    printf("%c", packet_buffer[3 + i]);
                     break;
                 }
                 printf("%c ", packet_buffer[3 + i]);
