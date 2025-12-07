@@ -112,6 +112,33 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
+    uint8_t packet_buffer[MAX_BUFFER]; 
+    ssize_t bytes_received;
+
+    bytes_received = receive_server_packet(client_fd, packet_buffer);
+    
+    if (bytes_received <= 0) 
+    {
+        close(client_fd);
+        return 0;
+    }
+
+    uint8_t msg_flag = packet_buffer[0];
+
+    if (msg_flag > 0) 
+    {
+        packet_buffer[bytes_received] = '\0';
+        printf(">>>%s\n", (char *)(packet_buffer + 1));
+        
+        if (strstr((char *)(packet_buffer + 1), "overloaded")) 
+        {
+            close(client_fd);
+            return 0;
+        }
+        close(client_fd);
+        return 0;
+    } 
+    
     char ready_char[10];
     printf(">>>Ready to start game? (y/n): ");
     if (fgets(ready_char, sizeof(ready_char), stdin) == NULL || tolower(ready_char[0]) != 'y') 
@@ -131,11 +158,44 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    uint8_t packet_buffer[MAX_BUFFER]; 
+    uint8_t word_len = packet_buffer[1];
+    uint8_t num_incorrect = packet_buffer[2];
     
+    printf(">>>");
+    for (int i = 0; i < word_len; i++) 
+    {
+        printf("%c", packet_buffer[3 + i]);
+        if (i < word_len - 1) 
+        {
+            printf(" ");
+        }
+    }
+    printf("\n");
+    
+    printf(">>>Incorrect Guesses: ");
+    for (int i = 0; i < num_incorrect; i++) 
+    {
+        printf("%c", packet_buffer[3 + word_len + i]);
+        if (i < num_incorrect - 1) 
+        {
+            printf(" ");
+        }
+    }
+    printf("\n>>>\n");
+
+    char guess = get_valid_guess();
+    if (guess == 0) 
+    {
+        close(client_fd);
+        return 0;
+    }
+
+    uint8_t guess_pkt_data[2] = {1, guess}; 
+    send(client_fd, guess_pkt_data, 2, 0); 
+
     while (1) 
     {
-        ssize_t bytes_received = receive_server_packet(client_fd, packet_buffer);
+        bytes_received = receive_server_packet(client_fd, packet_buffer);
         
         if (bytes_received <= 0) 
         {
