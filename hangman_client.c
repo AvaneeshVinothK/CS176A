@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < num_incorrect; i++) 
             {
                 printf("%c", packet_buffer[3 + word_len + i]);
-                if (i < word_len - 1) 
+                if (i < num_incorrect - 1) 
                 {
                     printf(" ");
                 }
