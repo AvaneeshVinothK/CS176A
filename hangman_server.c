@@ -214,6 +214,7 @@ void *handle_client_game(void *arg) {
             send_game_control_packet(client_fd, session);
         }
     }
+    return NULL;
 }
 
 int main(int argc, char *argv[]) 
