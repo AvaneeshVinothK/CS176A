@@ -269,45 +269,51 @@ int main(int argc, char *argv[])
     printf("Hangman Server listening on port %d\n", port);
 
     while (1) 
+{
+    int client_fd = accept(listen_fd, (struct sockaddr *)&client_addr, &client_len);
+    if (client_fd < 0) 
     {
-        int client_fd = accept(listen_fd, (struct sockaddr *)&client_addr, &client_len);
-        if (client_fd < 0) 
-        {
-            continue;
-        }
+        continue;
+    }
 
-        pthread_mutex_lock(&clients_mutex);
-        int slot_index = -1;
-        for (int i = 0; i < MAX_CLIENTS; i++) 
+    pthread_mutex_lock(&clients_mutex);
+    int slot_index = -1;
+    for (int i = 0; i < MAX_CLIENTS; i++) 
+    {
+        if (game_sessions[i].is_active == 0)
         {
-            if (game_sessions[i].is_active == 0)
-            {
-                slot_index = i;
-                break;
-            }
-        }
-        pthread_mutex_unlock(&clients_mutex);
-
-        if (slot_index == -1) 
-        {
-            send_message_packet(client_fd, "server-overloaded");
-            close(client_fd);
-        } 
-        else 
-        {
-            GameSession *session = &game_sessions[slot_index];
-            session->client_socket = client_fd;
-            session->is_active = 1;
-            load_words();
-            
-            if (pthread_create(&session->thread_id, NULL, handle_client_game, session) != 0) 
-            {
-                close(client_fd);
-                session->is_active = 0;
-            }
-            pthread_detach(session->thread_id);
+            slot_index = i;
+            game_sessions[i].is_active = 1;
+            game_sessions[i].client_socket = client_fd;
+            game_sessions[i].slot_index = i;
+            break;
         }
     }
+    pthread_mutex_unlock(&clients_mutex);
+
+    if (slot_index == -1) 
+    {
+        send_message_packet(client_fd, "server-overloaded");
+        close(client_fd);
+        continue;
+    } 
+    else 
+    {
+        GameSession *session = &game_sessions[slot_index];
+
+        load_words();
+
+        if (pthread_create(&session->thread_id, NULL, handle_client_game, session) != 0) 
+        {
+            close(client_fd);
+            pthread_mutex_lock(&clients_mutex);
+            session->is_active = 0;
+            pthread_mutex_unlock(&clients_mutex);
+            continue;
+        }
+        pthread_detach(session->thread_id);
+    }
+}
     
     close(listen_fd);
     return 0;
